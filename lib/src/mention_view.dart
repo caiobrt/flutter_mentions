@@ -7,6 +7,7 @@ class FlutterMentions extends StatefulWidget {
     this.defaultText,
     this.suggestionPosition = SuggestionPosition.Bottom,
     this.suggestionListHeight = 300.0,
+    this.margin,
     this.onMarkupChanged,
     this.onMentionAdd,
     this.onSearchChanged,
@@ -83,6 +84,8 @@ class FlutterMentions extends StatefulWidget {
   ///
   /// Defaults to `300.0`
   final double suggestionListHeight;
+
+  final EdgeInsets? margin;
 
   /// A Functioned which is triggered when ever the input changes
   /// but with the markup of the selected mentions
@@ -303,20 +306,27 @@ class FlutterMentionsState extends State<FlutterMentions> {
         .firstWhere((element) => selectedMention.str.contains(element.trigger));
 
     // find the text by range and replace with the new value.
-    controller!.text = controller!.value.text.replaceRange(
+    final text = controller!.value.text.replaceRange(
       selectedMention.start,
       selectedMention.end,
       "${_list.trigger}${value['display']}${widget.appendSpaceOnAdd ? ' ' : ''}",
     );
 
-    if (widget.onMentionAdd != null) widget.onMentionAdd!(value);
-
     // Move the cursor to next position after the new mentioned item.
     var nextCursorPosition =
         selectedMention.start + 1 + value['display']?.length as int? ?? 0;
     if (widget.appendSpaceOnAdd) nextCursorPosition++;
-    controller!.selection =
-        TextSelection.fromPosition(TextPosition(offset: nextCursorPosition));
+
+    setState(
+      () => controller!.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.fromPosition(
+          TextPosition(offset: nextCursorPosition),
+        ),
+      ),
+    );
+
+    if (widget.onMentionAdd != null) widget.onMentionAdd!(value);
   }
 
   void suggestionListerner() {
@@ -424,6 +434,8 @@ class FlutterMentionsState extends State<FlutterMentions> {
           builder: (BuildContext context, bool show, Widget? child) {
             return show && !widget.hideSuggestionList
                 ? OptionList(
+                    margin: widget.margin,
+                    color: list.color,
                     suggestionListHeight: widget.suggestionListHeight,
                     suggestionBuilder: list.suggestionBuilder,
                     suggestionListDecoration: widget.suggestionListDecoration,

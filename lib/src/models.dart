@@ -19,6 +19,7 @@ class Mention {
     required this.trigger,
     this.data = const [],
     this.style,
+    this.color,
     this.matchAll = false,
     this.suggestionBuilder,
     this.disableMarkup = false,
@@ -46,6 +47,8 @@ class Mention {
 
   /// Build Custom suggestion widget using this builder.
   final Widget Function(Map<String, dynamic>)? suggestionBuilder;
+
+  final Color? color;
 
   /// Allows to set custom markup for the mentioned item.
   final String Function(String trigger, String mention, String value)?
